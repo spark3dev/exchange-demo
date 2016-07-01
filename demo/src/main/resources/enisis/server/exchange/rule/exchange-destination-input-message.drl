@@ -1,0 +1,48 @@
+package enisis.server.exchange.rule;
+
+import enisis.server.exchange.model.pduV202.ExchangePDU;
+import enisis.server.exchange.model.pduV202.Header;
+import enisis.server.exchange.model.pduV202.Message;
+import enisis.server.exchange.model.pduV202.AddressInfo;
+
+import java.util.List;
+import java.util.ArrayList;
+
+rule "Route input messages to HQ"
+dialect "java"
+salience 2
+ruleflow-group "destination_input_message"
+when
+    $pdu : ExchangePDU((recipients == null || recipients.size == 0),
+                        header.message != null,
+                        $message : header.message,
+                        $receiver : header.message.receiver,
+                        $exchangeInfo : header.messageStatus.exchangeInfo,
+                        ($message.format == "MT" &&
+                         $message.subFormat =="INPUT" &&
+                         ($receiver.bic12.startsWith("SPXCKRB") ||
+                          $receiver.bic12.startsWith("SHBKTES"))))
+then
+    $pdu.setRecipients(new ArrayList<String>());
+    $pdu.getRecipients().add("jms://SHBKTT_HUB_OUT");
+    $exchangeInfo.setIsInternal(true);
+end
+
+rule "Route input messages to SWIFT"
+dialect "java"
+salience 1
+ruleflow-group "destination_input_message"
+when
+    $pdu : ExchangePDU((recipients == null || recipients.size == 0),
+                        header.message != null,
+                        $message : header.message,
+                        $receiver : header.message.receiver,
+                        $exchangeInfo : header.messageStatus.exchangeInfo,
+                        ($message.format == "MT" &&
+                         $message.subFormat =="INPUT" &&
+                         $receiver.bic12.startsWith("SPXCKRB") == false &&
+                         $receiver.bic12.startsWith("SHBKTES") == false))
+then
+    $pdu.setRecipients(new ArrayList<String>());
+    $pdu.getRecipients().add("jms://SHBKTT_SWIFT_INPUT");
+end

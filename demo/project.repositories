@@ -1,0 +1,28 @@
+<project-repositories>
+  <repositories>
+    <repository>
+      <include>true</include>
+      <metadata>
+        <id>unimo-repo</id>
+        <url>http://192.168.1.100/nexus/content/groups/unimo-repo/</url>
+        <source>SETTINGS</source>
+      </metadata>
+    </repository>
+    <repository>
+      <include>true</include>
+      <metadata>
+        <id>local</id>
+        <url>D:\Projects\eNisis\m2\repository</url>
+        <source>LOCAL</source>
+      </metadata>
+    </repository>
+    <repository>
+      <include>true</include>
+      <metadata>
+        <id>guvnor-m2-repo</id>
+        <url>http://172.16.5.16:28080/drools/maven2/</url>
+        <source>PROJECT</source>
+      </metadata>
+    </repository>
+  </repositories>
+</project-repositories>

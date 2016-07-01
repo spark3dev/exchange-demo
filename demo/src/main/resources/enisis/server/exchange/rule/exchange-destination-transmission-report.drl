@@ -1,0 +1,19 @@
+package enisis.server.exchange.rule;
+
+import enisis.server.exchange.model.pduV202.ExchangePDU;
+
+rule "Route transmission report to HQ"
+dialect "java"
+salience 2
+ruleflow-group "destination_transmission_report"
+when
+    $pdu : ExchangePDU((recipients == null || recipients.size == 0),
+                        header.transmissionReport != null,
+                        $report : header.transmissionReport,
+                        $addressee : header.transmissionReport.originalInstanceAddressee,
+                        ($addressee.x1.startsWith("SPXCKRB") ||
+                         $addressee.x1.startsWith("SHBKTES")))
+then
+    $pdu.setRecipients(new ArrayList<String>());
+    $pdu.getRecipients().add("jms://SHBKTT_HUB_ACK");
+end
